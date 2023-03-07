@@ -40,17 +40,11 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        print($"OnColl Check Before isGrounded ={isGrounded}");
-
         if (isGrounded) return;
-
-        print($"OnColl Check After isGrounded ={isGrounded}");
 
         if (collision.gameObject.CompareTag("Ground"))
         {
-            print($"OnColl if Ground Before Change, isGrounded ={isGrounded}");
             isGrounded = true;
-            print($"OnColl if Ground After Chahge isGrounded ={isGrounded}");
         }
     }
 
@@ -75,7 +69,7 @@ public class PlayerMovement : MonoBehaviour
                  Mathf.Abs(rb.velocity.z) < maxSpeed)
         {
             movementDirection = transform.forward * verticalMovement + transform.right * horizontalMovement;
-            rb.AddForce(movementDirection.normalized * speedValue, ForceMode.VelocityChange);
+            rb.AddForce(movementDirection.normalized * speedValue, ForceMode.Acceleration);
         }
     }
 
@@ -102,20 +96,11 @@ public class PlayerMovement : MonoBehaviour
 
         rb.AddForce(Vector3.up * jumpValue, ForceMode.VelocityChange);
         isGrounded = false;
-        print($"After Jump isGrounded ={isGrounded}");
     }
 
     private void CheckFallPosition()
     {
         if (transform.position.y < -5)
             transform.position = startPosition;
-    }
-
-    private void SetPlayerCamera()
-    {
-        Transform cameraTransform = Camera.main.gameObject.transform;
-        cameraTransform.parent = cameraHolder.transform;
-        cameraTransform.position = cameraHolder.transform.position;
-        cameraTransform.rotation = cameraHolder.transform.rotation;
     }
 }
