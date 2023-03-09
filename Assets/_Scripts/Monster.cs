@@ -1,8 +1,10 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class Monster : MonoBehaviour, IEnemy
 {
+    //[SerializeField] private TMP_Text healthText;
     [SerializeField] private int maxHealth;
     [SerializeField] private int currentHealth;
     [SerializeField] private int damage;
@@ -18,29 +20,58 @@ public class Monster : MonoBehaviour, IEnemy
 
         if (navMeshAgent == null) return;
 
+        if (playerGo.activeSelf == false)
+        {
+            navMeshAgent.isStopped = true;
+            Debug.Log("NavMesh Stop");
+            return;
+        }
+
         navMeshAgent.SetDestination(playerGo.transform.position);
 
         if (navMeshAgent.remainingDistance <= attackDistance)
         {
-            Attack();
+            if (!IsInvoking(nameof(Attack)))
+                InvokeRepeating(nameof(Attack), 0.5f, 2f);
+        }
+        else
+        {
+            CancelInvoke(nameof(Attack));
         }
     }
 
     public void ReceiveDamage(int damage)
     {
         currentHealth -= damage;
-        print("Monster receives damage");
+
+        if (currentHealth <= 0)
+        {
+            currentHealth = 0;
+            Debug.Log("Monster HP = 0");
+            Die();
+        }
+
+        DisplayHealth();
+        Debug.Log("Monster receives damage");
     }
 
     public void Attack()
     {
+        if (playerGo.activeSelf == false) return;
+
         player.ReceiveDamage(damage);
-        print("Monster attacks");
+        Debug.Log("Monster attacks");
     }
 
     public void Die()
     {
+        Debug.Log("Monster Died");
+        gameObject.SetActive(false);
+    }
 
+    public void DisplayHealth()
+    {
+        //healthText.text = currentHealth.ToString();
     }
 
     private void Start()
@@ -54,7 +85,8 @@ public class Monster : MonoBehaviour, IEnemy
         if (playerGo.TryGetComponent(out Player player))
             this.player = player;
 
-        maxHealth = currentHealth;
+        currentHealth = maxHealth;
+        DisplayHealth();
     }
 
     private void Update()

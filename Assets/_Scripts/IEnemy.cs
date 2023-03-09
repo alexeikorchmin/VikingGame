@@ -8,4 +8,6 @@ public interface IEnemy
     void Attack() { }
 
     void Die() { }
+
+    void DisplayHealth() { }
 }
