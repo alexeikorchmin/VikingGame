@@ -1,12 +1,11 @@
 using System;
-using TMPro;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
     public static event Action OnPlayerDied;
 
-    [SerializeField] private TMP_Text healthText;
+    [SerializeField] private HealthBar healthBar;
     [SerializeField] private int maxHealth;
     [SerializeField] private int currentHealth;
     [SerializeField] private int damage;
@@ -27,7 +26,7 @@ public class Player : MonoBehaviour
     public void ReceiveDamage(int damage)
     {
         currentHealth -= damage;
-        
+
         if (currentHealth <= 0)
         {
             currentHealth = 0;
@@ -35,7 +34,7 @@ public class Player : MonoBehaviour
             Die();
         }
 
-        DisplayHealth();
+        healthBar.SetHealth(currentHealth);
         Debug.Log("Player receives damage");
     }
 
@@ -54,17 +53,12 @@ public class Player : MonoBehaviour
         canAttack = isGameStarted;
         gameObject.SetActive(isGameStarted);
         currentHealth = maxHealth;
-        DisplayHealth();
+        healthBar.SetMaxHealth(maxHealth);
     }
 
     private void Update()
     {
         Attack();
-    }
-
-    private void DisplayHealth()
-    {
-        healthText.text = currentHealth.ToString();
     }
 
     private void Raycast()
