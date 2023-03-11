@@ -9,13 +9,13 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Rigidbody rb;
     [SerializeField] private GameObject cameraHolder;
 
-    private Vector3 startPosition;
+    private Vector3 spawnPosition;
     private Vector3 movementDirection;
     private float horizontalMovement;
     private float verticalMovement;
     private KeyCode jumpKey = KeyCode.Space;
     private bool isGrounded = true;
-    private bool canMove = true;
+    private bool canMove;
 
     private float mouseX;
     private float mouseY;
@@ -25,9 +25,28 @@ public class PlayerMovement : MonoBehaviour
 
     private void Awake()
     {
+        GameManager.OnGameStarted += Init;
+
         rb.constraints = RigidbodyConstraints.FreezeRotation;
-        startPosition = transform.position;
-        Cursor.lockState = CursorLockMode.Confined;
+        spawnPosition = transform.position;
+    }
+
+    private void OnDestroy()
+    {
+        GameManager.OnGameStarted -= Init;
+    }
+
+    private void Init(bool isGameStarted)
+    {
+        canMove = isGameStarted;
+
+        if (isGameStarted)
+        {
+            transform.position = spawnPosition;
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+        else
+            Cursor.lockState = CursorLockMode.Confined;
     }
 
     private void Update()
@@ -75,6 +94,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void MouseMovement()
     {
+        if (!canMove) return;
+
         mouseX = Input.GetAxisRaw("Mouse X");
         mouseY = Input.GetAxisRaw("Mouse Y");
 
@@ -101,6 +122,6 @@ public class PlayerMovement : MonoBehaviour
     private void CheckFallPosition()
     {
         if (transform.position.y < -5)
-            transform.position = startPosition;
+            transform.position = spawnPosition;
     }
 }

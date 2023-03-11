@@ -1,13 +1,13 @@
 
 public interface IEnemy
 {
-    void ChasePlayer() { }
+    void Attack() { }
 
     void ReceiveDamage(int damage) { }
 
-    void Attack() { }
-
-    void Die() { }
+    void ChasePlayer() { }
 
     void DisplayHealth() { }
+
+    void Die() { }
 }

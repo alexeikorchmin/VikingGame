@@ -1,27 +1,23 @@
+using System;
 using TMPro;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    public static event Action OnPlayerDied;
+
     [SerializeField] private TMP_Text healthText;
     [SerializeField] private int maxHealth;
     [SerializeField] private int currentHealth;
     [SerializeField] private int damage;
     [SerializeField] private int attackDistance;
 
-    private void DisplayHealth()
-    {
-        healthText.text = currentHealth.ToString();
-    }
-
-    private void Die()
-    {
-        Debug.Log("Player Died");
-        gameObject.SetActive(false);
-    }
+    private bool canAttack;
 
     public void Attack()
     {
+        if (!canAttack) return;
+        
         if (Input.GetMouseButtonDown(0) == false) return;
 
         Raycast();
@@ -45,6 +41,18 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
+        GameManager.OnGameStarted += Init;
+    }
+
+    private void OnDestroy()
+    {
+        GameManager.OnGameStarted -= Init;
+    }
+
+    private void Init(bool isGameStarted)
+    {
+        canAttack = isGameStarted;
+        gameObject.SetActive(isGameStarted);
         currentHealth = maxHealth;
         DisplayHealth();
     }
@@ -54,12 +62,17 @@ public class Player : MonoBehaviour
         Attack();
     }
 
+    private void DisplayHealth()
+    {
+        healthText.text = currentHealth.ToString();
+    }
+
     private void Raycast()
     {
-        if (Physics.Raycast(transform.position, transform.forward, out var hit, attackDistance * 10))
+        if (Physics.Raycast(transform.position, transform.forward, out var hit, attackDistance))
         {
-            Debug.Log("Player Raycast OK");
             Debug.DrawRay(transform.position, transform.forward * 10, Color.blue, 1f);
+            Debug.Log("Player Raycast OK");
 
             if (hit.transform.CompareTag("Enemy"))
             {
@@ -67,5 +80,12 @@ public class Player : MonoBehaviour
                 Debug.Log("Player Raycast IEnemy OK");
             }
         }
+    }
+
+    private void Die()
+    {
+        Debug.Log("Player Died");
+        OnPlayerDied?.Invoke();
+        gameObject.SetActive(false);
     }
 }
