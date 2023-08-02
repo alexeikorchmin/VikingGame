@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    public static event Action<bool> OnGameStarted;
+    public static event Action<bool> OnGameisPlayed;
 
     [SerializeField] private TMP_Text currentScoreText;
     [SerializeField] private TMP_Text finalScoreText;
@@ -24,11 +24,6 @@ public class GameManager : MonoBehaviour
         currentScoreText.text = $"Scores: {currentScore.ToString()}";
     }
 
-    public void DisplayCurrentScore()
-    {
-        finalScoreText.text = $"Scores: {currentScore.ToString()}";
-    }
-
     private void Awake()
     {
         Player.OnPlayerDied += OnPlayerDiedHandler;
@@ -44,12 +39,17 @@ public class GameManager : MonoBehaviour
 
     private void OnPlayerDiedHandler()
     {
-        OnGameStarted?.Invoke(false);
-        DisplayCurrentScore();
+        OnGameisPlayed?.Invoke(false);
+        DisplayFinalScore();
         topPanel.SetActive(false);
         finalScoreButton.SetActive(true);
         startRestartButtonText.text = "RESTART";
         startPanel.SetActive(true);
+    }
+
+    private void DisplayFinalScore()
+    {
+        finalScoreText.text = $"Scores: {currentScore.ToString()}";
     }
 
     private void StartGame()
@@ -58,7 +58,7 @@ public class GameManager : MonoBehaviour
         topPanel.SetActive(true);
         finalScoreButton.SetActive(false);
         startRestartButtonText.text = "START";
-        OnGameStarted?.Invoke(true);
+        OnGameisPlayed?.Invoke(true);
     }
 
     private void ExitGame()

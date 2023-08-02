@@ -25,7 +25,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Awake()
     {
-        GameManager.OnGameStarted += Init;
+        GameManager.OnGameisPlayed += Init;
 
         rb.constraints = RigidbodyConstraints.FreezeRotation;
         spawnPosition = transform.position;
@@ -33,14 +33,14 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnDestroy()
     {
-        GameManager.OnGameStarted -= Init;
+        GameManager.OnGameisPlayed -= Init;
     }
 
-    private void Init(bool isGameStarted)
+    private void Init(bool isGamePlayed)
     {
-        canMove = isGameStarted;
+        canMove = isGamePlayed;
 
-        if (isGameStarted)
+        if (isGamePlayed)
         {
             transform.position = spawnPosition;
             Cursor.lockState = CursorLockMode.Locked;

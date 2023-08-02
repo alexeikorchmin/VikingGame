@@ -20,6 +20,8 @@ public class Monster : MonoBehaviour, IEnemy
     [SerializeField] private bool canMove;
     private Vector3 spawnPosition;
 
+    [SerializeField] private Animator animator;
+
     public void Attack()
     {
         if (playerGo.activeSelf == false) return;
@@ -32,7 +34,8 @@ public class Monster : MonoBehaviour, IEnemy
             if (hit.transform.CompareTag("Player"))
             {
                 player.ReceiveDamage(damage);
-                Debug.Log("Monster Raycast Player OK. Monster attacks");
+                animator.Play("Attack");
+                Debug.Log("Animator Attack. Monster Raycast Player OK. Monster attacks");
             }
         }
     }
@@ -40,6 +43,8 @@ public class Monster : MonoBehaviour, IEnemy
     public void ReceiveDamage(int damage)
     {
         currentHealth -= damage;
+        Debug.Log("Animator TakeDamage");
+        animator.Play("TakeDamage");
 
         if (currentHealth <= 0)
         {
@@ -68,6 +73,8 @@ public class Monster : MonoBehaviour, IEnemy
         }
 
         navMeshAgent.SetDestination(playerGo.transform.position);
+        Debug.Log("Animator Run");
+        animator.Play("Run");
 
         if (navMeshAgent.remainingDistance <= attackDistance)
         {
@@ -88,7 +95,11 @@ public class Monster : MonoBehaviour, IEnemy
         Debug.Log("Monster Died");
         canMove = false;
         OnMosterDied?.Invoke();
-        gameObject.SetActive(false);
+
+        Debug.Log("Animator Die");
+        animator.Play("Die");
+
+        //gameObject.SetActive(false);
 
         Invoke(nameof(Spawn), 2f);
     }
@@ -102,19 +113,19 @@ public class Monster : MonoBehaviour, IEnemy
         canMove = true;
     }
 
-    private void Init(bool isGameStarted)
+    private void Init(bool isGamePlayed)
     {
-        canMove = isGameStarted;
+        canMove = isGamePlayed;
     }
 
     private void Awake()
     {
-        GameManager.OnGameStarted += Init;
+        GameManager.OnGameisPlayed += Init;
     }
 
     private void OnDestroy()
     {
-        GameManager.OnGameStarted -= Init;
+        GameManager.OnGameisPlayed -= Init;
     }
 
     private void Start()

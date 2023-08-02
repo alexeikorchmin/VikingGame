@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -11,27 +12,34 @@ public class Player : MonoBehaviour
     [SerializeField] private int damage;
     [SerializeField] private int attackDistance;
 
+    [SerializeField] private Animator animator;
+
     private bool canAttack;
 
     public void Attack()
     {
         if (!canAttack) return;
-        
+
         if (Input.GetMouseButtonDown(0) == false) return;
 
-        Raycast();
+        animator.Play("Attack");
+
         Debug.Log("Player attacks");
+        Invoke(nameof(Raycast), 3f);
     }
 
     public void ReceiveDamage(int damage)
     {
         currentHealth -= damage;
 
+        animator.Play("TakeDamage");
+
         if (currentHealth <= 0)
         {
             currentHealth = 0;
-            Debug.Log("Player HP = 0");
-            Die();
+            Debug.Log("Player TakeDamage HP = 0");
+            //Die();
+            StartCoroutine(DieCoroutine());
         }
 
         healthBar.SetHealth(currentHealth);
@@ -40,18 +48,18 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
-        GameManager.OnGameStarted += Init;
+        GameManager.OnGameisPlayed += Init;
     }
 
     private void OnDestroy()
     {
-        GameManager.OnGameStarted -= Init;
+        GameManager.OnGameisPlayed -= Init;
     }
 
     private void Init(bool isGameStarted)
     {
-        canAttack = isGameStarted;
-        gameObject.SetActive(isGameStarted);
+        canAttack = true;
+        gameObject.SetActive(true);
         currentHealth = maxHealth;
         healthBar.SetMaxHealth(maxHealth);
     }
@@ -66,7 +74,7 @@ public class Player : MonoBehaviour
         if (Physics.Raycast(transform.position, transform.forward, out var hit, attackDistance))
         {
             Debug.DrawRay(transform.position, transform.forward * 10, Color.blue, 1f);
-            Debug.Log("Player Raycast OK");
+            Debug.Log("Player DrawRaycast OK");
 
             if (hit.transform.CompareTag("Enemy"))
             {
@@ -78,8 +86,21 @@ public class Player : MonoBehaviour
 
     private void Die()
     {
+        animator.Play("PlayerDie");
         Debug.Log("Player Died");
         OnPlayerDied?.Invoke();
+        gameObject.SetActive(false);
+    }
+
+    private IEnumerator DieCoroutine()
+    {
+        Debug.Log("Coroutine Start");
+        animator.Play("Die");
+        OnPlayerDied?.Invoke();
+        canAttack = false;
+        yield return new WaitForSeconds(3f);
+
+        Debug.Log("Coroutine Player Died");
         gameObject.SetActive(false);
     }
 }

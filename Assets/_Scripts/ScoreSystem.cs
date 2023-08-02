@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ScoreSystem : MonoBehaviour
 {
-    [SerializeField] private GameManager managerUI;
+    [SerializeField] private GameManager gameManager;
 
     private int currentScore;
 
@@ -19,6 +19,6 @@ public class ScoreSystem : MonoBehaviour
     private void OnMosterDiedHandler()
     {
         currentScore++;
-        managerUI.DisplayCurrentScore(currentScore);
+        gameManager.DisplayCurrentScore(currentScore);
     }
 }
